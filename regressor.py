@@ -1,14 +1,12 @@
-from sklearn.gaussian_process import GaussianProcess
+from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.base import BaseEstimator
-import numpy as np
-
+ 
 class Regressor(BaseEstimator):
     def __init__(self):
-        self.gp = GaussianProcess(corr='absolute_exponential')
-
+        self.clf = GradientBoostingRegressor(n_estimators=200, max_features="sqrt", max_depth=5)
+ 
     def fit(self, X, y):
-        y = y + np.random.randn(len(y)) * (1/10)
-        self.gp.fit(X, y)
-
+        self.clf.fit(X, y.ravel())
+ 
     def predict(self, X):
-        return self.gp.predict(X)
+        return self.clf.predict(X)
