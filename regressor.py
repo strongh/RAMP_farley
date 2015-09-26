@@ -1,6 +1,6 @@
 from sklearn.gaussian_process import GaussianProcess
 from sklearn.base import BaseEstimator
-
+import numpy as np
 
 class Regressor(BaseEstimator):
     def __init__(self):
