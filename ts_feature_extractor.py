@@ -1,5 +1,5 @@
 import numpy as np
- 
+# [0, 1, 2, 3, 4, 5, 6, 18, 30, 42, 54, 66, 78]: 
 en_lat_bottom = -5
 en_lat_top = 5
 en_lon_left = 360-170
@@ -21,8 +21,8 @@ class FeatureExtractor(object):
         features = []
         for latitude in xrange(-5, 5, 10):
             for longitude in xrange(180, 300, 5):
-                for lag in [0, 1, 2, 3, 4, 5, 6, 18, 30, 42, 54, 66, 78]:
-                    features.append(self.make_ll_feature(temperatures_xray['tas'], latitude, longitude, lag))
+                for lag in range(0, 19):
+                    features.append(self.make_lag_feature(temperatures_xray['tas'], latitude, longitude, lag))
         X = np.vstack(features)
         # all world temps
         all_temps = temperatures_xray['tas'].values
@@ -35,7 +35,8 @@ class FeatureExtractor(object):
         all_diffs[1,:] = all_temps[0,:] - all_temps[1,:]
         all_diffs[-1,:] = all_temps[-2,:] - all_temps[-1,:]                             
         # return feature matrix
-        return np.hstack([X.T, all_temps, all_diffs])
+#        return np.hstack([X.T, all_temps, all_diffs])
+        return np.hstack([X.T, all_temps])
     
     def get_enso_mean(self, tas):
         """The array of mean temperatures in the El Nino 3.4 region at all time points."""
@@ -59,7 +60,12 @@ class FeatureExtractor(object):
         lagged = np.roll(enso, self.n_lookahead - lag)
         return self.make_feature(enso) 
  
-    def make_ll_feature(self, tas, latitude, longitude, lag):
+    def make_lag_feature(self, tas, latitude, longitude, lag):
+        enso = tas.loc[:, latitude:latitude+5, longitude:longitude+5].median(dim=('lat','lon'))
+        lagged = np.roll(enso, self.n_lookahead - lag)
+        return self.make_feature(enso)
+
+    def make_ll_feature_old(self, tas, latitude, longitude, lag):
         enso = tas.loc[:, latitude:latitude+10, longitude:longitude+10].mean(dim=('lat','lon'))
         lagged = np.roll(enso, self.n_lookahead - lag)
         return self.make_feature(enso)
